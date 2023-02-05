@@ -1,3 +1,8 @@
+/*
+ * @Author: simon
+ * @Description:
+ * @LastEditors: simon
+ */
 /* @flow */
 
 import { _Set as Set, isObject } from '../util/index'
@@ -10,6 +15,9 @@ const seenObjects = new Set()
  * Recursively traverse an object to evoke all converted
  * getters, so that every nested property inside the object
  * is collected as a "deep" dependency.
+ * 递归地遍历一个对象以唤起所有转换的
+ * 获取器，因此对象内部的每个嵌套属性
+ * 都被作为一个 "深层 "的依赖关系收集起来。
  */
 export function traverse (val: any) {
   _traverse(val, seenObjects)

@@ -401,12 +401,13 @@ export function createPatchFunction (backend) {
     }
   }
 
+  // 更新子节点 parentElm: 父亲节点 oldCh: 老的子节点 newCh: 新的子节点
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
     let oldStartIdx = 0
     let newStartIdx = 0
-    let oldEndIdx = oldCh.length - 1
-    let oldStartVnode = oldCh[0]
-    let oldEndVnode = oldCh[oldEndIdx]
+    let oldEndIdx = oldCh.length - 1 // 老的子节点集合的结束下标
+    let oldStartVnode = oldCh[0] // 老的第一个节点
+    let oldEndVnode = oldCh[oldEndIdx] // 老的结束节点
     let newEndIdx = newCh.length - 1
     let newStartVnode = newCh[0]
     let newEndVnode = newCh[newEndIdx]
@@ -415,6 +416,9 @@ export function createPatchFunction (backend) {
     // removeOnly is a special flag used only by <transition-group>
     // to ensure removed elements stay in correct relative positions
     // during leaving transitions
+     // removeOnly是一个特殊的标志，只被<transition-group>使用。
+    // 以确保被移除的元素保持在正确的相对位置上
+    // 在离开过渡期间//保持正确的相对位置
     const canMove = !removeOnly
 
     if (process.env.NODE_ENV !== 'production') {
@@ -423,28 +427,35 @@ export function createPatchFunction (backend) {
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
-        oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
+        // 如果老的开始节点是空，index走一位
+        oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left Vnode已经被移到了左边
       } else if (isUndef(oldEndVnode)) {
+        // 如果老的结束节点是空节点，index减一位
         oldEndVnode = oldCh[--oldEndIdx]
       } else if (sameVnode(oldStartVnode, newStartVnode)) {
+        // 如果新老 开始节点相同 双双走一位
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
         oldStartVnode = oldCh[++oldStartIdx]
         newStartVnode = newCh[++newStartIdx]
       } else if (sameVnode(oldEndVnode, newEndVnode)) {
+        // 如果 新老 结束节点相同， 双双减一位
         patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
         oldEndVnode = oldCh[--oldEndIdx]
         newEndVnode = newCh[--newEndIdx]
       } else if (sameVnode(oldStartVnode, newEndVnode)) { // Vnode moved right
+        // 如果 老的开始节点 和 新的结束节点相同 把老的开始节点插入到老的结束节点前面
         patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
         canMove && nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm))
-        oldStartVnode = oldCh[++oldStartIdx]
-        newEndVnode = newCh[--newEndIdx]
+        oldStartVnode = oldCh[++oldStartIdx] // 老的开始节点走一位
+        newEndVnode = newCh[--newEndIdx] // 新的结束节点减一位
       } else if (sameVnode(oldEndVnode, newStartVnode)) { // Vnode moved left
+        // 老的结束节点和新的开始节点相同 老的结束节点插入到老的开始节点之前
         patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
         canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
-        oldEndVnode = oldCh[--oldEndIdx]
-        newStartVnode = newCh[++newStartIdx]
+        oldEndVnode = oldCh[--oldEndIdx] // 老的结束下标index减一位
+        newStartVnode = newCh[++newStartIdx] // 新的开始下标走一位
       } else {
+
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
         idxInOld = isDef(newStartVnode.key)
           ? oldKeyToIdx[newStartVnode.key]
@@ -497,16 +508,17 @@ export function createPatchFunction (backend) {
       if (isDef(c) && sameVnode(node, c)) return i
     }
   }
-
+  // 更新节点
   function patchVnode (
-    oldVnode,
-    vnode,
+    oldVnode, //老节点
+    vnode, // 新节点
     insertedVnodeQueue,
-    ownerArray,
-    index,
-    removeOnly
+    ownerArray, // 新数组
+    index, // 更新节点位置
+    removeOnly // transition-group 使用标记
   ) {
     if (oldVnode === vnode) {
+      // 新老节点相同 结束
       return
     }
 
@@ -518,7 +530,7 @@ export function createPatchFunction (backend) {
     const elm = vnode.elm = oldVnode.elm
 
     if (isTrue(oldVnode.isAsyncPlaceholder)) {
-      if (isDef(vnode.asyncFactory.resolved)) {
+      if (isDef(vnode.asyncFactory.resolved)) { // 异步组件已经加载
         hydrate(oldVnode.elm, vnode, insertedVnodeQueue)
       } else {
         vnode.isAsyncPlaceholder = true
@@ -535,6 +547,8 @@ export function createPatchFunction (backend) {
       vnode.key === oldVnode.key &&
       (isTrue(vnode.isCloned) || isTrue(vnode.isOnce))
     ) {
+      // 静态节点相同 && key相同 && (节点isCloned为true || 节点只渲染1次isOnce)
+      // 老节点componentInstance赋值新节点componentInstance
       vnode.componentInstance = oldVnode.componentInstance
       return
     }
@@ -542,7 +556,7 @@ export function createPatchFunction (backend) {
     let i
     const data = vnode.data
     if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
-      i(oldVnode, vnode)
+      i(oldVnode, vnode) // i 触发hook方法还是prepatch方法？
     }
 
     const oldCh = oldVnode.children

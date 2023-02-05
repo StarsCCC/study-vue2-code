@@ -1,3 +1,8 @@
+/*
+ * @Author: simon
+ * @Description:
+ * @LastEditors: simon
+ */
 import { initMixin } from './init'
 import { stateMixin } from './state'
 import { renderMixin } from './render'
@@ -11,7 +16,7 @@ function Vue (options) {
   ) {
     warn('Vue is a constructor and should be called with the `new` keyword')
   }
-  this._init(options)
+  this._init(options) // vue实例化时接收options参数
 }
 
 initMixin(Vue)

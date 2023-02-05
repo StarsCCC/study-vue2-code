@@ -1,4 +1,9 @@
 /* @flow */
+/*
+ * @Author: simon
+ * @Description:
+ * @LastEditors: simon
+ */
 
 /**
  * unicode letters used for parsing html tags, component names and property paths.
@@ -17,6 +22,7 @@ export function isReserved (str: string): boolean {
 
 /**
  * Define a property.
+ * 把对象转成带属性的
  */
 export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
   Object.defineProperty(obj, key, {
@@ -29,6 +35,7 @@ export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
 
 /**
  * Parse simple path.
+ * 解析简单路径。
  */
 const bailRE = new RegExp(`[^${unicodeRegExp.source}.$_\\d]`)
 export function parsePath (path: string): any {

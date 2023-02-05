@@ -1,13 +1,14 @@
 /* @flow */
 
-export const emptyObject = Object.freeze({})
+export const emptyObject = Object.freeze({}) // 冻结空对象
 
 // These helpers produce better VM code in JS engines due to their
 // explicitness and function inlining.
+// 判断变量是不是未定义，即是否等于 undefined 或 null
 export function isUndef (v: any): boolean %checks {
   return v === undefined || v === null
 }
-
+// 判断变量是否已定义，即是否不等于 undefined 与 null
 export function isDef (v: any): boolean %checks {
   return v !== undefined && v !== null
 }
@@ -65,6 +66,7 @@ export function isRegExp (v: any): boolean {
 
 /**
  * Check if val is a valid array index.
+ * 检查val是否是一个有效的数组索引。
  */
 export function isValidArrayIndex (val: any): boolean {
   const n = parseFloat(String(val))
@@ -141,19 +143,24 @@ export function remove (arr: Array<any>, item: any): Array<any> | void {
 
 /**
  * Check whether an object has the property.
+ * 检查对象原型key
  */
 const hasOwnProperty = Object.prototype.hasOwnProperty
+
 export function hasOwn (obj: Object | Array<*>, key: string): boolean {
   return hasOwnProperty.call(obj, key)
 }
 
 /**
  * Create a cached version of a pure function.
+ * 创建纯函数的缓存版本。
  */
 export function cached<F: Function> (fn: F): F {
-  const cache = Object.create(null)
+  const cache = Object.create(null) // 创建一个新的cache对象
+  // 返回一个尾调用函数cachedFn, 尾调用函数接收一个字符串参数
   return (function cachedFn (str: string) {
-    const hit = cache[str]
+    const hit = cache[str] // 如果当前cached对象中已经存在相同的key，则把缓存中的函数赋值个hit变量
+    // 如果hit变量存在值则返回，否则把当前进来的函数缓存起来的同时返回
     return hit || (cache[str] = fn(str))
   }: any)
 }
@@ -227,6 +234,7 @@ export function toArray (list: any, start?: number): Array<any> {
 
 /**
  * Mix properties into target object.
+ * 将属性混入目标对象
  */
 export function extend (to: Object, _from: ?Object): Object {
   for (const key in _from) {
@@ -237,6 +245,7 @@ export function extend (to: Object, _from: ?Object): Object {
 
 /**
  * Merge an Array of Objects into a single Object.
+ * 将一个数组的对象合并成一个单一的对象 (为啥这里不用Object.create()?)
  */
 export function toObject (arr: Array<any>): Object {
   const res = {}
@@ -271,6 +280,7 @@ export const identity = (_: any) => _
 
 /**
  * Generate a string containing static keys from compiler modules.
+ * 从编译器模块生成一个包含静态键的字符串。
  */
 export function genStaticKeys (modules: Array<ModuleOptions>): string {
   return modules.reduce((keys, m) => {

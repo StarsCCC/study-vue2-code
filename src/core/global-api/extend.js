@@ -1,3 +1,8 @@
+/*
+ * @Author: simon
+ * @Description:
+ * @LastEditors: simon
+ */
 /* @flow */
 
 import { ASSET_TYPES } from 'shared/constants'
@@ -9,6 +14,9 @@ export function initExtend (Vue: GlobalAPI) {
    * Each instance constructor, including Vue, has a unique
    * cid. This enables us to create wrapped "child
    * constructors" for prototypal inheritance and cache them.
+   * 每个实例构造函数，包括Vue，都有一个唯一的
+   * 这使我们能够创建封装的 "子构造函数”
+   * 进行原型继承，并对其进行缓存。
    */
   Vue.cid = 0
   let cid = 1

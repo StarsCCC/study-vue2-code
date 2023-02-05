@@ -1,9 +1,15 @@
+/*
+ * @Author: simon
+ * @Description:
+ * @LastEditors: simon
+ */
 /* @flow */
 
 import { hasOwn } from 'shared/util'
 import { warn, hasSymbol } from '../util/index'
 import { defineReactive, toggleObserving } from '../observer/index'
 
+// 初始化实例组件的依赖项，依赖可以是 函数返回对象 也可以是对象
 export function initProvide (vm: Component) {
   const provide = vm.$options.provide
   if (provide) {
@@ -13,6 +19,7 @@ export function initProvide (vm: Component) {
   }
 }
 
+// 初始化实例组件的注入项 Array<string> | { [key: string]: string | Symbol | Object }
 export function initInjections (vm: Component) {
   const result = resolveInject(vm.$options.inject, vm)
   if (result) {
@@ -29,7 +36,7 @@ export function initInjections (vm: Component) {
           )
         })
       } else {
-        defineReactive(vm, key, result[key])
+        defineReactive(vm, key, result[key]) // 对注入的key 绑定观察者
       }
     })
     toggleObserving(true)
@@ -40,6 +47,7 @@ export function resolveInject (inject: any, vm: Component): ?Object {
   if (inject) {
     // inject is :any because flow is not smart enough to figure out cached
     const result = Object.create(null)
+    // 支持Symbol 就用Reflect, 不支持就用Object.keys()
     const keys = hasSymbol
       ? Reflect.ownKeys(inject)
       : Object.keys(inject)
@@ -48,8 +56,9 @@ export function resolveInject (inject: any, vm: Component): ?Object {
       const key = keys[i]
       // #6574 in case the inject object is observed...
       if (key === '__ob__') continue
-      const provideKey = inject[key].from
+      const provideKey = inject[key].from //是在可用的注入内容中搜索用的 key (字符串或 Symbol)
       let source = vm
+      // 向上级查找_provided中的provideKey
       while (source) {
         if (source._provided && hasOwn(source._provided, provideKey)) {
           result[key] = source._provided[provideKey]

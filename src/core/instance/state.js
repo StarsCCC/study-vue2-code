@@ -46,10 +46,10 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 }
 
 export function initState (vm: Component) {
-  vm._watchers = []
+  vm._watchers = [] // 初始化_watchers为空数组 _watchers为观察者列表
   const opts = vm.$options
-  if (opts.props) initProps(vm, opts.props)
-  if (opts.methods) initMethods(vm, opts.methods)
+  if (opts.props) initProps(vm, opts.props) // 先初始化props
+  if (opts.methods) initMethods(vm, opts.methods) // 初始化methods
   if (opts.data) {
     initData(vm)
   } else {
@@ -61,16 +61,17 @@ export function initState (vm: Component) {
   }
 }
 
+// propsOptions 传进来的props
 function initProps (vm: Component, propsOptions: Object) {
   const propsData = vm.$options.propsData || {}
-  const props = vm._props = {}
+  const props = vm._props = {} // 当前实例的Component的_props
   // cache prop keys so that future props updates can iterate using Array
   // instead of dynamic object key enumeration.
   const keys = vm.$options._propKeys = []
-  const isRoot = !vm.$parent
-  // root instance props should be converted
+  const isRoot = !vm.$parent // 当前实例不存在$parent时为根节点
+  // root instance props should be converted 应转换根实例道具
   if (!isRoot) {
-    toggleObserving(false)
+    toggleObserving(false) // 不需要 new Observe 因为父级的字段已经有observe
   }
   for (const key in propsOptions) {
     keys.push(key)
@@ -94,6 +95,7 @@ function initProps (vm: Component, propsOptions: Object) {
             `value. Prop being mutated: "${key}"`,
             vm
           )
+          // 定制的getter错误提示，提示props不能修改
         }
       })
     } else {
@@ -109,8 +111,10 @@ function initProps (vm: Component, propsOptions: Object) {
   toggleObserving(true)
 }
 
+// 初始化data
 function initData (vm: Component) {
   let data = vm.$options.data
+  // getData 把data挂载在当前实例上
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -148,6 +152,7 @@ function initData (vm: Component) {
     }
   }
   // observe data
+  // 遍历data中的key，给每一个key new Observe 实例， 实例中会有一个唯一的dep id
   observe(data, true /* asRootData */)
 }
 
@@ -169,11 +174,13 @@ const computedWatcherOptions = { lazy: true }
 function initComputed (vm: Component, computed: Object) {
   // $flow-disable-line
   const watchers = vm._computedWatchers = Object.create(null)
+
   // computed properties are just getters during SSR
   const isSSR = isServerRendering()
 
   for (const key in computed) {
     const userDef = computed[key]
+
     const getter = typeof userDef === 'function' ? userDef : userDef.get
     if (process.env.NODE_ENV !== 'production' && getter == null) {
       warn(
@@ -183,6 +190,7 @@ function initComputed (vm: Component, computed: Object) {
     }
 
     if (!isSSR) {
+
       // create internal watcher for the computed property.
       watchers[key] = new Watcher(
         vm,
@@ -195,6 +203,7 @@ function initComputed (vm: Component, computed: Object) {
     // component-defined computed properties are already defined on the
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
+
     if (!(key in vm)) {
       defineComputed(vm, key, userDef)
     } else if (process.env.NODE_ENV !== 'production') {
@@ -212,6 +221,7 @@ export function defineComputed (
   key: string,
   userDef: Object | Function
 ) {
+
   const shouldCache = !isServerRendering()
   if (typeof userDef === 'function') {
     sharedPropertyDefinition.get = shouldCache
@@ -219,6 +229,7 @@ export function defineComputed (
       : createGetterInvoker(userDef)
     sharedPropertyDefinition.set = noop
   } else {
+
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)
@@ -270,6 +281,7 @@ function initMethods (vm: Component, methods: Object) {
           vm
         )
       }
+      // methods 中的方法不能和props里面的key同名
       if (props && hasOwn(props, key)) {
         warn(
           `Method "${key}" has already been defined as a prop.`,
@@ -281,6 +293,8 @@ function initMethods (vm: Component, methods: Object) {
           `Method "${key}" conflicts with an existing Vue instance method. ` +
           `Avoid defining component methods that start with _ or $.`
         )
+        // 方法“${key}”与现有的 Vue 实例方法冲突
+        // 避免定义以 _ 或 $ 开头的组件方法。
       }
     }
     vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)

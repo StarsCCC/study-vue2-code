@@ -1,3 +1,8 @@
+/*
+ * @Author: simon
+ * @Description:
+ * @LastEditors: simon
+ */
 /* @flow */
 
 import {
@@ -11,6 +16,7 @@ import {
   isPlainObject
 } from 'shared/util'
 
+// 添加标准事件，事件回调会被缓存起来
 const normalizeEvent = cached((name: string): {
   name: string,
   once: boolean,
@@ -49,7 +55,12 @@ export function createFnInvoker (fns: Function | Array<Function>, vm: ?Component
   invoker.fns = fns
   return invoker
 }
-
+// 事件监听器集合
+// 上一次的事件监听器集合
+// 加入的新的事件监听
+// 移除新的事件监听
+// 创建触发一次的事件
+// 当前组件实例
 export function updateListeners (
   on: Object,
   oldOn: Object,
@@ -61,12 +72,12 @@ export function updateListeners (
   let name, def, cur, old, event
   for (name in on) {
     def = cur = on[name]
-    old = oldOn[name]
-    event = normalizeEvent(name)
+    old = oldOn[name] // 找出旧事件集合中的同名事件
+    event = normalizeEvent(name) // 给事件创建标准的事件回调
     /* istanbul ignore if */
     if (__WEEX__ && isPlainObject(def)) {
       cur = def.handler
-      event.params = def.params
+      event.params = def.params //给事件添加携带参数
     }
     if (isUndef(cur)) {
       process.env.NODE_ENV !== 'production' && warn(
@@ -86,6 +97,7 @@ export function updateListeners (
       on[name] = old
     }
   }
+  // 组件更新时，移除不存在的事件监听
   for (name in oldOn) {
     if (isUndef(on[name])) {
       event = normalizeEvent(name)

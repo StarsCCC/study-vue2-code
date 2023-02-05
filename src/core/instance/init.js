@@ -16,7 +16,7 @@ export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // a uid
-    vm._uid = uid++
+    vm._uid = uid++ // 每一个vm都有一个唯一id
 
     let startTag, endTag
     /* istanbul ignore if */
@@ -29,10 +29,14 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
+    // 子组件创建节点的时候会有_isComponent
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
+      // 优化内部组件实例化
+      // 因为动态选项合并很慢，而且没有一个
+      // 内部组件选项需要特殊处理。
       initInternalComponent(vm, options)
     } else {
       vm.$options = mergeOptions(
@@ -49,13 +53,13 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
-    callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
-    initState(vm)
-    initProvide(vm) // resolve provide after data/props
+    initLifecycle(vm) // 重置vue原型中的属性
+    initEvents(vm) // 初始化事件,把当前组件的事件代理到_events上
+    initRender(vm) // 初始化render
+    callHook(vm, 'beforeCreate') // 回调第一个钩子函数
+    initInjections(vm) // resolve injections before data/props 在数据/道具之前解决注入  初始化注入的key
+    initState(vm) // 遍历初始化data/props
+    initProvide(vm) // resolve provide after data/props 在数据/道具之后解决依赖
     callHook(vm, 'created')
 
     /* istanbul ignore if */

@@ -9,19 +9,21 @@ import {
 } from '../util/index'
 import { updateListeners } from '../vdom/helpers/index'
 
+// 初始化事件event
 export function initEvents (vm: Component) {
-  vm._events = Object.create(null)
+  vm._events = Object.create(null) // 创建个空对象
   vm._hasHookEvent = false
-  // init parent attached events
+  // init parent attached events 初始化父附加事件
   const listeners = vm.$options._parentListeners
   if (listeners) {
     updateComponentListeners(vm, listeners)
   }
 }
 
-let target: any
+let target: any // 当前的目标组局/当前的组件实例
 
 function add (event, fn) {
+  // event 事件名 fn 事件回调函数
   target.$on(event, fn)
 }
 
@@ -29,6 +31,7 @@ function remove (event, fn) {
   target.$off(event, fn)
 }
 
+// 创建执行1次的事件
 function createOnceHandler (event, fn) {
   const _target = target
   return function onceHandler () {
@@ -39,6 +42,10 @@ function createOnceHandler (event, fn) {
   }
 }
 
+// 更新组件事件指令监听
+// vm当前组件实例
+// listeners事件集合
+// oldListeners老事件集合（beforeUpdate钩子使用）
 export function updateComponentListeners (
   vm: Component,
   listeners: Object,
@@ -51,6 +58,7 @@ export function updateComponentListeners (
 
 export function eventsMixin (Vue: Class<Component>) {
   const hookRE = /^hook:/
+  // 监听当前实例上的自定义事件。事件可以由 vm.$emit 触发。回调函数会接收所有传入事件触发函数的额外参数。
   Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {
     const vm: Component = this
     if (Array.isArray(event)) {
@@ -67,18 +75,18 @@ export function eventsMixin (Vue: Class<Component>) {
     }
     return vm
   }
-
+// 监听一个自定义事件，但是只触发一次。一旦触发之后，监听器就会被移除。
   Vue.prototype.$once = function (event: string, fn: Function): Component {
     const vm: Component = this
     function on () {
-      vm.$off(event, on)
-      fn.apply(vm, arguments)
+      vm.$off(event, on) // 移除绑定事件
+      fn.apply(vm, arguments) // 事件执行
     }
     on.fn = fn
-    vm.$on(event, on)
+    vm.$on(event, on) // 事件绑定上去
     return vm
   }
-
+// 移除自定义事件监听器。
   Vue.prototype.$off = function (event?: string | Array<string>, fn?: Function): Component {
     const vm: Component = this
     // all
@@ -114,7 +122,7 @@ export function eventsMixin (Vue: Class<Component>) {
     }
     return vm
   }
-
+// 触发当前实例上的事件。附加参数都会传给监听器回调。
   Vue.prototype.$emit = function (event: string): Component {
     const vm: Component = this
     if (process.env.NODE_ENV !== 'production') {
@@ -132,7 +140,7 @@ export function eventsMixin (Vue: Class<Component>) {
     let cbs = vm._events[event]
     if (cbs) {
       cbs = cbs.length > 1 ? toArray(cbs) : cbs
-      const args = toArray(arguments, 1)
+      const args = toArray(arguments, 1) // 当前传进来的参数
       const info = `event handler for "${event}"`
       for (let i = 0, l = cbs.length; i < l; i++) {
         invokeWithErrorHandling(cbs[i], vm, args, vm, info)

@@ -16,13 +16,14 @@ import VNode, { createEmptyVNode } from '../vdom/vnode'
 
 import { isUpdatingChildComponent } from './lifecycle'
 
+// 初始化render渲染函数
 export function initRender (vm: Component) {
   vm._vnode = null // the root of the child tree
-  vm._staticTrees = null // v-once cached trees
+  vm._staticTrees = null // v-once cached trees 只渲染元素和组件一次。随后的重新渲染，元素/组件及其所有的子节点将被视为静态内容并跳过。这可以用于优化更新性能。
   const options = vm.$options
   const parentVnode = vm.$vnode = options._parentVnode // the placeholder node in parent tree
   const renderContext = parentVnode && parentVnode.context
-  vm.$slots = resolveSlots(options._renderChildren, renderContext)
+  vm.$slots = resolveSlots(options._renderChildren, renderContext) // 初始化插槽
   vm.$scopedSlots = emptyObject
   // bind the createElement fn to this instance
   // so that we get proper render context inside it.
@@ -62,6 +63,7 @@ export function renderMixin (Vue: Class<Component>) {
   // install runtime convenience helpers
   installRenderHelpers(Vue.prototype)
 
+  // 把nextTick挂载在当前实例中，通过$nextTick调用
   Vue.prototype.$nextTick = function (fn: Function) {
     return nextTick(fn, this)
   }

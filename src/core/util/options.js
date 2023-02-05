@@ -384,6 +384,8 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
 /**
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
+ * 将两个选项对象合并为一个新的选项对象。
+ * 用于实例化和继承的核心实用程序。
  */
 export function mergeOptions (
   parent: Object,
@@ -406,10 +408,15 @@ export function mergeOptions (
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  //在子选项上应用扩展和混合，
+  // 但前提是它不是原始选项对象
+  // 另一个 mergeOptions 调用的结果。
+  // 只有合并后的选项才具有 _base 属性。
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
     }
+    // 存在mixins配置
     if (child.mixins) {
       for (let i = 0, l = child.mixins.length; i < l; i++) {
         parent = mergeOptions(parent, child.mixins[i], vm)
